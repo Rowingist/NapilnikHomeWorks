@@ -7,55 +7,56 @@ namespace Environment
         static void Main(string[] args)
         {
             Bot bot = new Bot();
-            Player player = new Player(100);
+            Player player = new Player(60);
 
-            bot.OnSeePlayer(player);
-
-            Console.WriteLine(player.Health);
+            bot.SpotPlayer(player);
         }
     }
 
     class Weapon
     {
         private int _damage;
-        private int _bullets;
+        private int _bulletsQuantity;
 
-        public Weapon(int damage, int bullets)
+        public Weapon(int damage, int bulletsQuantity)
         {
             _damage = damage;
-            _bullets = bullets;
+            _bulletsQuantity = bulletsQuantity;
         }
 
         public void Fire(Player player)
         {
+            if (_bulletsQuantity <= 0)
+                throw new ArgumentOutOfRangeException(nameof(_bulletsQuantity));
+
             player.TakeDamage(_damage);
-            _bullets -= 1;
+            _bulletsQuantity -= 1;
         }
     }
 
     class Player
     {
-        public int Health { get; private set; }
+        public int _health { get; private set; }
 
-        public Player(int value)
+        public Player(int health)
         {
-            Health = value;
+            _health = health;
         }
 
         public void TakeDamage(int damage)
         {
-            Health -= damage;
+            if (_health <= 0)
+                throw new ArgumentOutOfRangeException();
 
-            if (Health <= 0)
-                Health = 0;
+            _health -= damage;
         }
     }
 
     class Bot
     {
-        private Weapon _weapon = new Weapon(40, 60);
+        private Weapon _weapon = new Weapon(20, 2);
 
-        public void OnSeePlayer(Player player)
+        public void SpotPlayer(Player player)
         {
             _weapon.Fire(player);
         }
