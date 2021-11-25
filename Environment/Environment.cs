@@ -12,7 +12,7 @@ namespace Environment
         public static void Main(string[] args)
         {
             Bot bot = new Bot();
-            Player player = new Player(new Health(50));
+            Player player = new Player(50);
 
             bot.SpotPlayer(player);
         }
@@ -53,13 +53,13 @@ namespace Environment
 
     public class Player : IDamageable
     {
-        private Health _health;
+        private int _health;
 
-        public Player(Health health)
+        public Player(int health)
         {
-            if (health == null)
+            if (health <= 0)
             {
-                throw new NullReferenceException(nameof(health));
+                throw new ArgumentOutOfRangeException(nameof(health));
             }
 
             _health = health;
@@ -67,30 +67,10 @@ namespace Environment
 
         public void TakeDamage(int damage)
         {
-            _health.TakeDamage(damage);
-        }
-    }
-
-    public class Health : IDamageable
-    {
-        private int _value;
-
-        public Health(int value)
-        {
-            if (value <= 0)
+            _health -= damage;
+            if (_health <= 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(value));
-            }
-
-            _value = value;
-        }
-
-        public void TakeDamage(int damage)
-        {
-            _value -= damage;
-            if (_value <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(_value));
+                throw new ArgumentOutOfRangeException(nameof(_health));
             }
         }
     }
