@@ -22,22 +22,24 @@ namespace Napilnik_homeworks
             Good iPhone12 = new Good("IPhone 12");
             Good iPhone11 = new Good("IPhone 11");
 
-            Warehouse warehouse = new Warehouse();
+            Shop shop = new Shop(new Warehouse());
 
-            Shop shop = new Shop(warehouse);
+            IShowable warehouseView = new WarehouseView(shop.Warehouse);
 
-            warehouse.Delive(iPhone12, 10);
-            warehouse.Delive(iPhone11, 1);
+            shop.Warehouse.Ship(iPhone12, 10);
+            shop.Warehouse.Ship(iPhone11, 1);
 
             Console.WriteLine("In warehouse: ");
-            warehouse.Show();
+            warehouseView.Show();
 
             Cart cart = shop.Cart();
+            IShowable cartView = new WarehouseView(cart.Order().CartWarehouse);
+
             cart.Add(iPhone12, 4);
-            cart.Add(iPhone11, 3);
+            cart.Add(iPhone11, 1);
 
             Console.WriteLine("In Cart: ");
-            cart.Show();
+            cartView.Show();
 
             Console.WriteLine(cart.Order().Paylink);
         }
@@ -46,6 +48,8 @@ namespace Napilnik_homeworks
     public class Shop
     {
         private readonly Warehouse _warehouse;
+
+        public Warehouse Warehouse => _warehouse;
 
         public Shop(Warehouse warehouse)
         {
@@ -58,7 +62,7 @@ namespace Napilnik_homeworks
         }
     }
 
-    public class Cart : IShowable
+    public class Cart
     {
         private readonly Warehouse _shopWarehouse;
         private readonly Order _order = new Order();
@@ -74,18 +78,13 @@ namespace Napilnik_homeworks
             _order.AddGoods(good, count);
         }
 
-        public void Show()
-        {
-            _order.Show();
-        }
-
         public Order Order()
         {
             return _order;
         }
     }
 
-    public class Order : IShowable
+    public class Order
     {
         private readonly Warehouse _cartWarehouse = new Warehouse();
 
@@ -96,18 +95,15 @@ namespace Napilnik_homeworks
 
         public string Paylink { get; private set; }
 
+        public Warehouse CartWarehouse => _cartWarehouse;
+
         public void AddGoods(Good good, int count)
         {
-            _cartWarehouse.Delive(good, count);
-        }
-
-        public void Show()
-        {
-            _cartWarehouse.Show();
+            _cartWarehouse.Ship(good, count);
         }
     }
 
-    public class Warehouse : IShowable
+    public class Warehouse
     {
         private readonly List<Cell> _cells;
 
@@ -118,7 +114,7 @@ namespace Napilnik_homeworks
 
         public IReadOnlyList<IReadOnlyCell> Cells => _cells;
 
-        public void Delive(Good good, int count)
+        public void Ship(Good good, int count)
         {
             var newCell = new Cell(good, count);
 
@@ -149,17 +145,9 @@ namespace Napilnik_homeworks
                 _cells[cellIndex] = _cells[cellIndex].Derive(necessaryCell);
             }
         }
-
-        public void Show()
-        {
-            foreach (Cell cell in _cells)
-            {
-                cell.View.Show();
-            }
-        }
     }
 
-    public class Cell : IReadOnlyCell, IShowable
+    public class Cell : IReadOnlyCell
     {
         public Cell(Good good, int count)
         {
@@ -170,14 +158,11 @@ namespace Napilnik_homeworks
 
             Good = good;
             Count = count;
-            View = new View(good.Name, count);
         }
 
         public Good Good { get; private set; }
 
         public int Count { get; private set; }
-
-        public View View { get; private set; }
 
         public Cell Merge(Cell newCell)
         {
@@ -207,11 +192,6 @@ namespace Napilnik_homeworks
 
             return new Cell(Good, cellReduction);
         }
-
-        public void Show()
-        {
-            View.Show();
-        }
     }
 
     public class Good
@@ -224,20 +204,55 @@ namespace Napilnik_homeworks
         }
     }
 
-    public class View : IShowable
+    public class CellView : IShowable
     {
-        private readonly string _name;
-        private readonly int _count;
+        private readonly Cell _cell;
 
-        public View(string name, int count)
+        public CellView(Cell cell)
         {
-            _name = name;
-            _count = count;
+            _cell = cell;
         }
 
         public void Show()
         {
-            Console.WriteLine($"Good: {_name}, amount avaliable: {_count}");
+            Console.WriteLine($"Good: {_cell.Good.Name}, amount avaliable: {_cell.Count}");
+        }
+    }
+
+    public class WarehouseView : IShowable
+    {
+        private readonly Warehouse _warehouse;
+        private readonly IReadOnlyList<IReadOnlyCell> _cells;
+        private readonly List<CellView> _cellsView = new List<CellView>();
+
+        public WarehouseView(Warehouse warehouse)
+        {
+            _warehouse = warehouse;
+            _cells = _warehouse.Cells;
+        }
+
+        public void Show()
+        {
+            if (_cellsView == null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            Refresh();
+
+            for (int i = 0; i < _cellsView.Count; i++)
+            {
+                _cellsView[i].Show();
+            }
+        }
+
+        private void Refresh()
+        {
+            _cellsView.Clear();
+            foreach (Cell cell in _warehouse.Cells)
+            {
+                _cellsView.Add(new CellView(cell));
+            }
         }
     }
 }
