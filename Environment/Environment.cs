@@ -12,9 +12,9 @@ namespace Environment
         public static void Main(string[] args)
         {
             Bot bot = new Bot();
-            Player player = new Player(50);
+            IDamageable player = new Player(50);
 
-            bot.SpotPlayer(player);
+            bot.OnSeePlayer(player);
         }
     }
 
@@ -26,27 +26,21 @@ namespace Environment
         public Weapon(int damage, int bullets)
         {
             if (damage < 0)
-            {
                 throw new ArgumentException(nameof(damage));
-            }
 
             if (bullets < 0)
-            {
                 throw new ArgumentException(nameof(bullets));
-            }
 
             _damage = damage;
             _bullets = bullets;
         }
 
-        public void Fire(Player player)
+        public void TryShoot(IDamageable target)
         {
             if (_bullets <= 0)
-            {
                 throw new ArgumentOutOfRangeException(nameof(_bullets));
-            }
 
-            player.TakeDamage(_damage);
+            target.TakeDamage(_damage);
             _bullets -= 1;
         }
     }
@@ -58,30 +52,30 @@ namespace Environment
         public Player(int health)
         {
             if (health <= 0)
-            {
                 throw new ArgumentOutOfRangeException(nameof(health));
-            }
 
             _health = health;
         }
 
         public void TakeDamage(int damage)
         {
-            _health -= damage;
+            if (damage > _health)
+                _health = 0;
+            else
+                _health -= damage;
+
             if (_health <= 0)
-            {
                 throw new ArgumentOutOfRangeException(nameof(_health));
-            }
         }
     }
 
     public class Bot
     {
-        private Weapon _weapon = new Weapon(60, 5);
+        private Weapon _weapon = new Weapon(1, 60);
 
-        public void SpotPlayer(Player player)
+        public void OnSeePlayer(IDamageable player)
         {
-            _weapon.Fire(player);
+            _weapon.TryShoot(player);
         }
     }
 }
