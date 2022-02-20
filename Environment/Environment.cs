@@ -35,7 +35,7 @@ namespace Environment
             _bullets = bullets;
         }
 
-        public void TryShoot(IDamageable target)
+        public void Shoot(IDamageable target)
         {
             if (_bullets <= 0)
                 throw new ArgumentOutOfRangeException(nameof(_bullets));
@@ -60,9 +60,9 @@ namespace Environment
         public void TakeDamage(int damage)
         {
             if (damage > _health)
-                _health = 0;
-            else
-                _health -= damage;
+                throw new ArgumentException(nameof(damage));
+
+            _health -= damage;
 
             if (_health <= 0)
                 throw new ArgumentOutOfRangeException(nameof(_health));
@@ -75,7 +75,7 @@ namespace Environment
 
         public void OnSeePlayer(IDamageable player)
         {
-            _weapon.TryShoot(player);
+            _weapon.Shoot(player);
         }
     }
 }
