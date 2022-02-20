@@ -1,0 +1,7 @@
+E:\V\Napilnik\HomeTasks\Environment\Environment\bin\Debug\Environment.exe.config
+E:\V\Napilnik\HomeTasks\Environment\Environment\bin\Debug\Environment.exe
+E:\V\Napilnik\HomeTasks\Environment\Environment\bin\Debug\Environment.pdb
+E:\V\Napilnik\HomeTasks\Environment\Environment\obj\Debug\Environment.csproj.AssemblyReference.cache
+E:\V\Napilnik\HomeTasks\Environment\Environment\obj\Debug\Environment.csproj.CoreCompileInputs.cache
+E:\V\Napilnik\HomeTasks\Environment\Environment\obj\Debug\Environment.exe
+E:\V\Napilnik\HomeTasks\Environment\Environment\obj\Debug\Environment.pdb
